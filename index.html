@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>발표 코치 소리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #FFE3ED;
+  --bg2: #FFC9DD;
+  --surface: #FFFFFF;
+  --border: #3B2A33;
+  --spotlight: #FF6FA5;
+  --spotlight-soft: #FFB3CD;
+  --curtain: #FF8A5B;
+  --mint: #4FCB92;
+  --lavender: #8B8FE8;
+  --text: #3B2A33;
+  --text-dim: #A98A9C;
+  --radius: 10px;
+  --shadow: 4px 4px 0px var(--border);
+  --shadow-sm: 3px 3px 0px var(--border);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--bg2) 2px, transparent 2px);
+  background-size: 22px 22px;
+  font-family: 'Noto Sans KR', sans-serif;
+  color: var(--text);
+}
+
+#app { max-width: 460px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; padding-bottom: 40px; }
+
+h1, h2, h3, .display { font-family: 'Black Han Sans', sans-serif; }
+.pixel-num { font-family: 'Press Start 2P', cursive; }
+
+button { font-family: inherit; cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+
+.flex { display: flex; }
+.flex-col { display: flex; flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.text-center { text-align: center; }
+.gap-2 { gap: 8px; }
+.gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; }
+.gap-6 { gap: 24px; }
+.w-full { width: 100%; }
+.hidden { display: none !important; }
+
+/* ---------- 상단 바 ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(255,227,237,0.9);
+  backdrop-filter: blur(4px);
+  border-bottom: 3px solid var(--border);
+}
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: 999px; padding: 4px 12px; font-weight: 700; font-size: 13px;
+}
+.icon-btn {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: 8px; width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-sm);
+}
+.icon-btn:active { transform: translate(2px, 2px); box-shadow: none; }
+
+.xp-track { flex: 1; max-width: 130px; height: 10px; background: var(--surface); border: 2px solid var(--border); border-radius: 999px; overflow: hidden; margin: 0 10px; }
+.xp-fill { height: 100%; background: linear-gradient(90deg, var(--spotlight), var(--curtain)); transition: width .4s; }
+
+/* ---------- 카드 공통 ---------- */
+.card {
+  background: var(--surface);
+  border: 3px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+/* ---------- 홈 화면 ---------- */
+.screen { padding: 16px; animation: popin .3s ease-out; }
+.home-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.streak { display: flex; align-items: center; gap: 4px; font-weight: 700; font-size: 12px; color: var(--text-dim); }
+
+.mascot-stage { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 12px 0 20px; position: relative; }
+.mascot-glow { position: absolute; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, var(--spotlight-soft) 0%, transparent 70%); top: 0; z-index: 0; }
+.mascot { position: relative; z-index: 1; animation: float 2.6s ease-in-out infinite; filter: drop-shadow(3px 4px 0px rgba(59,42,51,0.35)); image-rendering: pixelated; }
+.mascot-fast { animation-duration: 1.1s; }
+.wave-dot { position: absolute; width: 10px; height: 10px; background: var(--mint); border: 2px solid var(--border); animation: twinkle 1s ease-in-out infinite; }
+
+.speech-bubble {
+  position: relative; max-width: 300px; text-align: center;
+  background: var(--surface); border: 3px solid var(--border); border-radius: 16px;
+  padding: 12px 18px; font-family: 'Black Han Sans', sans-serif; font-size: 18px;
+  box-shadow: var(--shadow);
+}
+.speech-bubble::after {
+  content: ""; position: absolute; left: 50%; top: -9px; transform: translateX(-50%) rotate(45deg);
+  width: 14px; height: 14px; background: var(--surface);
+  border-left: 3px solid var(--border); border-top: 3px solid var(--border);
+}
+
+.menu-list { display: flex; flex-direction: column; gap: 12px; margin-top: 20px; }
+.menu-tile {
+  display: flex; align-items: center; gap: 14px; padding: 14px 16px; text-align: left;
+  background: var(--surface); border: 3px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow); width: 100%; transition: transform .08s;
+}
+.menu-tile:active { transform: translate(3px, 3px); box-shadow: none; }
+.menu-icon { width: 46px; height: 46px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; border: 3px solid var(--border); flex-shrink: 0; }
+.menu-title { font-family: 'Black Han Sans', sans-serif; font-size: 16px; }
+.menu-sub { font-size: 12px; color: var(--text-dim); }
+
+/* ---------- 녹음 화면 ---------- */
+.topic-card { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+.topic-label { font-size: 11px; font-weight: 700; color: var(--text-dim); display: flex; justify-content: space-between; align-items: center; }
+.dice-btn { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; background: var(--bg2); color: var(--spotlight); border: 2px solid var(--border); border-radius: 999px; padding: 4px 10px; }
+.dice-btn:active { transform: translate(2px, 2px); }
+.topic-text { font-family: 'Black Han Sans', sans-serif; font-size: 19px; }
+
+.timer { font-family: 'Press Start 2P', cursive; font-size: 26px; margin-top: 4px; }
+.timer.rec { color: var(--curtain); }
+
+.visualizer { display: flex; align-items: flex-end; justify-content: center; gap: 3px; height: 70px; margin: 16px 0; padding: 0 10px; }
+.bar { width: 8px; border-radius: 3px; background: var(--border); transition: height .08s; }
+.bar.active { background: linear-gradient(180deg, var(--spotlight), var(--curtain)); }
+
+.banner { font-size: 12px; text-align: center; padding: 10px 12px; border-radius: 8px; margin-bottom: 10px; border: 2px solid var(--border); }
+.banner.info { background: var(--surface); color: var(--text-dim); }
+.banner.error { background: #FFE0D0; color: var(--curtain); }
+
+.transcript-box { font-size: 12px; background: var(--bg2); border: 2px solid var(--border); border-radius: 10px; padding: 10px 12px; max-height: 100px; overflow-y: auto; line-height: 1.6; margin-bottom: 16px; }
+.transcript-interim { color: var(--spotlight); }
+
+.rec-controls { display: flex; align-items: center; justify-content: center; gap: 28px; margin-top: 20px; }
+.rec-btn { display: flex; flex-direction: column; align-items: center; gap: 8px; background: none; border: none; }
+.rec-btn:disabled { opacity: .3; }
+.rec-circle { width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 26px; border: 3px solid var(--border); box-shadow: var(--shadow); }
+.rec-circle.start { background: var(--spotlight); }
+.rec-circle.stop { background: var(--curtain); }
+.rec-circle.blinking { animation: pixelBlink 1s steps(2) infinite; }
+.rec-label { font-weight: 700; font-size: 12px; }
+
+/* ---------- 분석중 ---------- */
+.analyzing { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; padding-top: 80px; }
+.spinner { width: 26px; height: 26px; border: 4px solid var(--bg2); border-top: 4px solid var(--spotlight); border-radius: 50%; animation: spin .8s linear infinite; }
+.loading-msg { font-family: 'Black Han Sans', sans-serif; font-size: 17px; color: var(--text-dim); }
+
+/* ---------- 피드백 화면 ---------- */
+.levelup-banner { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border-radius: 999px; font-weight: 900; font-size: 14px; background: var(--spotlight-soft); color: var(--spotlight); margin-bottom: 14px; }
+.score-row { display: flex; align-items: center; justify-content: center; gap: 32px; margin: 18px 0; }
+.score-num { font-family: 'Black Han Sans', sans-serif; font-size: 40px; }
+.score-label { font-size: 11px; font-weight: 700; color: var(--text-dim); }
+
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.stat-card { background: var(--surface); border: 2px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+.stat-top { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 11px; font-weight: 700; }
+.stat-track { height: 8px; background: var(--bg2); border-radius: 999px; overflow: hidden; }
+.stat-fill { height: 100%; border-radius: 999px; transition: width .6s; }
+
+.section-title { display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 14px; margin-bottom: 8px; }
+.point-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+.point-item { font-size: 13.5px; padding: 9px 12px; border-radius: 10px; }
+
+.tip-box { padding: 16px; border-radius: 14px; margin-bottom: 20px; border: 3px solid var(--spotlight); background: linear-gradient(135deg, rgba(255,111,165,0.16), rgba(255,138,91,0.12)); }
+.cheer-text { text-align: center; font-family: 'Black Han Sans', sans-serif; font-size: 16px; color: var(--text-dim); margin-bottom: 20px; }
+
+.btn-row { display: flex; gap: 12px; }
+.btn { flex: 1; padding: 13px; border-radius: 10px; font-family: 'Black Han Sans', sans-serif; font-size: 15px; border: 3px solid var(--border); box-shadow: var(--shadow-sm); }
+.btn:active { transform: translate(2px, 2px); box-shadow: none; }
+.btn-primary { background: var(--spotlight); color: #fff; }
+.btn-secondary { background: var(--surface); color: var(--text); }
+
+/* ---------- 팁 화면 ---------- */
+.tip-intro { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; font-size: 13px; color: var(--text-dim); }
+.tip-grid { display: flex; flex-direction: column; gap: 12px; }
+.tip-card { background: var(--surface); border: 3px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 14px; }
+.tip-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.tip-icon { width: 34px; height: 34px; border-radius: 8px; border: 2px solid var(--border); background: var(--spotlight-soft); display: flex; align-items: center; justify-content: center; font-size: 17px; }
+.tip-tag { font-size: 10px; font-weight: 800; background: var(--bg2); color: var(--spotlight); border-radius: 999px; padding: 2px 8px; }
+.tip-title { font-family: 'Black Han Sans', sans-serif; font-size: 16px; margin-bottom: 4px; }
+.tip-desc { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+
+/* ---------- 기록 화면 ---------- */
+.level-card { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+.level-num { font-family: 'Black Han Sans', sans-serif; font-size: 26px; color: var(--spotlight); }
+.level-sub { font-size: 12px; color: var(--text-dim); }
+.chart-card { margin-bottom: 18px; }
+.chart-title { font-size: 12px; font-weight: 700; color: var(--text-dim); margin-bottom: 8px; }
+.hist-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--surface); border: 2px solid var(--border); border-radius: 10px; margin-bottom: 8px; }
+.hist-date { font-size: 12px; font-weight: 700; }
+.hist-meta { font-size: 10.5px; color: var(--text-dim); }
+.hist-score { font-family: 'Black Han Sans', sans-serif; font-size: 20px; color: var(--spotlight); }
+.empty-state { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 40px 0; text-align: center; color: var(--text-dim); font-size: 13px; }
+
+/* ---------- 애니메이션 ---------- */
+@keyframes float { 0%,100%{ transform: translateY(0px); } 50%{ transform: translateY(-9px); } }
+@keyframes twinkle { 0%,100%{ opacity: .35; } 50%{ opacity: 1; } }
+@keyframes popin { 0%{ opacity:0; transform: translateY(10px) scale(0.97);} 100%{ opacity:1; transform: translateY(0) scale(1);} }
+@keyframes pixelBlink { 0%,100%{ opacity:1; } 50%{ opacity:0.35; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+</style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+/* ==================================================================
+   발표 코치 '소리' - Vanilla JS 버전
+   ================================================================== */
+
+const TOPICS = [
+  "최근에 봤던 영화나 드라마 추천하기",
+  "우리 팀 프로젝트를 1분 안에 소개하기",
+  "좋아하는 취미를 처음 만난 사람에게 설명하기",
+  "가장 기억에 남는 여행지 소개하기",
+  "오늘 아침에 있었던 일 이야기하기",
+  "요즘 푹 빠져있는 것 소개하기",
+  "후배에게 해주고 싶은 조언 한 가지",
+  "좋아하는 음식과 그 이유 설명하기",
+  "최근에 새로 배운 것 설명하기",
+  "나만의 스트레스 해소법 소개하기",
+];
+
+const TIPS = [
+  { icon: "📏", tag: "속도", title: "속도는 대화하듯", desc: "너무 빠르면 청중이 따라가기 벅차요. 문장 사이 짧은 숨이 자연스러운 속도를 만들어줘요." },
+  { icon: "💬", tag: "필러단어", title: "음, 어 대신 침묵", desc: '막힐 땐 "음", "어" 대신 1초 침묵을 선택해보세요. 오히려 더 자신감 있어 보여요.' },
+  { icon: "🔊", tag: "목소리", title: "첫 문장을 크게", desc: "시작 문장을 평소보다 살짝 크게 말하면 청중의 집중을 단번에 끌어올 수 있어요." },
+  { icon: "⏱️", tag: "쉼표", title: "문단마다 숨 고르기", desc: "한 호흡에 너무 많은 내용을 담지 마세요. 문단이 바뀔 때 1초씩 멈추면 청중도 정리할 시간이 생겨요." },
+  { icon: "⭐", tag: "구성", title: "핵심은 세 번 반복", desc: "가장 중요한 메시지는 도입·본문·마무리에서 표현을 바꿔가며 세 번 반복해보세요." },
+  { icon: "✨", tag: "어미", title: "끝맺음은 확신 있게", desc: '"~인 것 같아요" 보다 "~입니다"처럼 확신 있는 어미로 끝내면 신뢰감이 확 올라가요.' },
+  { icon: "🔥", tag: "멘탈", title: "긴장될 땐 미리 녹음", desc: "실전 전에 이 앱으로 3번만 연습해도 뇌가 '이미 해본 일'로 기억해서 긴장이 줄어들어요." },
+  { icon: "🏆", tag: "오프닝", title: "질문 하나로 시작하기", desc: '"여러분은 ~해보신 적 있나요?" 같은 질문으로 시작하면 청중이 바로 몰입해요.' },
+];
+
+const LOADING_MSGS = ["목소리를 듣고 있어요...", "말하기 속도를 재는 중...", "필러 단어를 세는 중...", "숨 고르는 타이밍을 보는 중...", "꿀팁을 고르는 중..."];
+const FILLER_WORDS = ["음", "어", "그", "아", "막", "저기", "일단", "뭐", "그니까", "그러니까"];
+
+/* ------------------------------------------------------------------ */
+/* 상태                                                                 */
+/* ------------------------------------------------------------------ */
+const state = {
+  screen: "home",
+  level: 1, xp: 0, totalSessions: 0, history: [],
+  topic: TOPICS[0],
+  isRecording: false, elapsedSec: 0, levelBars: Array(24).fill(4),
+  finalText: "", interimText: "", speechSupported: true, micError: "",
+  metrics: null, feedback: null, xpGained: 0, leveledUp: false, loadingMsgIdx: 0,
+};
+
+let mediaStream = null, audioCtx = null, analyser = null, recognition = null;
+let tickInterval = null, timerInterval = null, loadingInterval = null;
+let finalTranscript = "", levelsArr = [], pauseCount = 0, silenceStart = null, pauseFlagged = false, isRecordingFlag = false;
+
+/* ------------------------------------------------------------------ */
+/* 저장/불러오기 (localStorage)                                        */
+/* ------------------------------------------------------------------ */
+function loadStats() {
+  try {
+    const s = JSON.parse(localStorage.getItem("coach-stats") || "null");
+    if (s) { state.xp = s.xp || 0; state.level = s.level || 1; state.totalSessions = s.totalSessions || 0; }
+  } catch (e) {}
+  try {
+    const h = JSON.parse(localStorage.getItem("coach-history") || "null");
+    if (h) state.history = h;
+  } catch (e) {}
+}
+function saveStats() {
+  localStorage.setItem("coach-stats", JSON.stringify({ xp: state.xp, level: state.level, totalSessions: state.totalSessions }));
+  localStorage.setItem("coach-history", JSON.stringify(state.history));
+}
+
+/* ------------------------------------------------------------------ */
+/* 유틸                                                                 */
+/* ------------------------------------------------------------------ */
+function formatTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function analyzeFillers(transcript) {
+  const tokens = transcript.split(/\s+/).map((t) => t.replace(/[.,!?~…]/g, "")).filter(Boolean);
+  let count = 0;
+  tokens.forEach((t) => { if (FILLER_WORDS.includes(t)) count++; });
+  return { count, total: tokens.length || 1 };
+}
+
+function computeMetrics({ durationSec, transcript, levels, pauseCount }) {
+  const charCount = transcript.replace(/\s/g, "").length;
+  const minutes = Math.max(durationSec / 60, 0.05);
+  const cpm = charCount > 0 ? Math.round(charCount / minutes) : 0;
+
+  let paceLabel, paceScore;
+  if (charCount < 5) { paceLabel = "인식된 말이 부족해요"; paceScore = 65; }
+  else if (cpm < 220) { paceLabel = "조금 느려요"; paceScore = 72; }
+  else if (cpm <= 380) { paceLabel = "딱 좋아요"; paceScore = 100; }
+  else if (cpm <= 450) { paceLabel = "조금 빨라요"; paceScore = 78; }
+  else { paceLabel = "너무 빨라요"; paceScore = 58; }
+
+  const { count: fillerCount, total: wordTotal } = analyzeFillers(transcript);
+  const fillerRate = fillerCount / wordTotal;
+  const fillerScore = Math.max(40, Math.round(100 - fillerRate * 400));
+
+  const avgVolume = levels.length ? Math.round(levels.reduce((a, b) => a + b, 0) / levels.length) : 0;
+  const variance = levels.length ? Math.round(Math.sqrt(levels.reduce((a, b) => a + (b - avgVolume) ** 2, 0) / levels.length)) : 0;
+  let volumeScore = 100;
+  if (avgVolume < 12) volumeScore -= 30;
+  if (variance > 28) volumeScore -= 15;
+  volumeScore = Math.max(40, volumeScore);
+
+  let pauseScore = 100;
+  if (durationSec > 15) {
+    const idealPauses = Math.max(1, Math.round(durationSec / 12));
+    const diff = Math.abs(pauseCount - idealPauses);
+    pauseScore = Math.max(50, 100 - diff * 10);
+  }
+
+  const overall = Math.round(paceScore * 0.3 + fillerScore * 0.3 + volumeScore * 0.2 + pauseScore * 0.2);
+  return { durationSec, charCount, cpm, paceLabel, paceScore, fillerCount, fillerScore, avgVolume, variance, volumeScore, pauseCount, pauseScore, overall, transcript };
+}
+
+/* 로컬 규칙 기반 캐릭터 피드백 (외부 API 없이 동작) */
+function generateFeedback(m) {
+  const good = [], improve = [];
+  const paceGood = ["말하기 속도가 듣기에 딱 편안한 템포였어요.", "속도 조절이 안정적이라 귀에 쏙쏙 들어왔어요."];
+  const paceBad = [`말하기 속도가 ${m.paceLabel}. 분당 280~380자 정도가 이상적이에요.`, `속도가 ${m.paceLabel}. 문장 사이에 짧게 숨을 쉬어보세요.`];
+  const fillerGood = ['"음", "어" 같은 필러 단어가 거의 없어서 깔끔했어요.', "불필요한 추임새 없이 문장이 매끄러웠어요."];
+  const fillerBad = [`필러 단어가 ${m.fillerCount}번 나왔어요. 막히면 잠깐 침묵해보세요.`, `"음/어"가 ${m.fillerCount}번 있었어요. 침묵도 훌륭한 발표 기술이에요.`];
+  const volGood = ["목소리 크기가 안정적으로 유지됐어요.", "목소리 톤이 시종일관 자신감 있게 들렸어요."];
+  const volBad = ["목소리 크기 변화가 컸어요. 문장 끝까지 힘을 유지해보세요.", "목소리가 점점 작아지는 경향이 있어요. 마지막까지 또렷하게!"];
+
+  if (m.paceScore >= 90) good.push(pick(paceGood)); else improve.push(pick(paceBad));
+  if (m.fillerScore >= 85) good.push(pick(fillerGood)); else improve.push(pick(fillerBad));
+  if (m.volumeScore >= 85) good.push(pick(volGood)); else improve.push(pick(volBad));
+
+  while (good.length < 2) good.push(pick(["끝까지 포기하지 않고 완주한 것만으로도 대단해요!", "떨지 않고 준비한 내용을 잘 전달했어요."]));
+  while (improve.length < 2) improve.push(pick(["다음엔 조금 더 큰 목소리로 시작해보는 건 어때요?", "첫 문장을 살짝 더 힘있게 시작해보세요."]));
+
+  const tip = pick(TIPS).desc;
+  const greeting = pick([
+    `이번 연습 점수는 ${m.overall}점! 잘 들었어요 🎤`,
+    `${m.overall}점 나왔어요! 오늘도 한 걸음 성장했네요 🐰`,
+    `수고했어요! 이번엔 ${m.overall}점이에요 ✨`,
+  ]);
+  const cheer = pick(["다음 연습에서 더 좋아질 거예요, 화이팅! 🔥", "매일 조금씩, 분명 늘고 있어요! 🌟", "오늘도 연습해줘서 고마워요 :)"]);
+
+  return { greeting, good_points: good.slice(0, 2), improve_points: improve.slice(0, 2), tip, cheer };
+}
+
+/* ------------------------------------------------------------------ */
+/* 마스코트 '소리' SVG                                                  */
+/* ------------------------------------------------------------------ */
+/* 업로드한 픽셀 토끼 그리드 (오른쪽 귀 안쪽 분홍 + 볼터치 추가) */
+const PX_COLORS = { ".": null, O: "#3B2A33", W: "#FFFFFF", P: "#FF6FA5", B: "#FFB3CD" };
+const BUNNY_GRID = [
+  [".", ".", "O", "W", "O", ".", ".", "O", "P", "O", ".", ".", ".", ".", "."],
+  [".", ".", "O", "W", "O", ".", ".", "O", "P", "O", ".", ".", ".", ".", "."],
+  [".", ".", "O", "W", "O", ".", ".", "O", "P", "O", ".", ".", ".", ".", "."],
+  [".", ".", "O", "W", "O", ".", ".", "O", "P", "O", ".", ".", ".", ".", "."],
+  [".", "O", "W", "W", "W", "W", "W", "W", "W", "W", "W", "O", ".", ".", "."],
+  [".", "O", "B", "W", "W", "W", "W", "W", "W", "W", "B", "O", ".", ".", "."],
+  ["O", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "O", ".", "."],
+  ["O", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "O", ".", "."],
+  ["O", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "O", "."],
+  ["O", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "O"],
+  [".", "O", "W", "W", "W", "W", "W", "W", "W", "W", "W", "W", "O", ".", "."],
+  [".", ".", "O", "O", "O", "O", "O", "O", "O", "O", "O", "O", ".", ".", "."],
+];
+
+function mascotSVG(mood, sizePx) {
+  const ROWS = BUNNY_GRID.length, COLS = BUNNY_GRID[0].length;
+  const CELL = sizePx / ROWS;
+  const w = Math.round(COLS * CELL), h = Math.round(ROWS * CELL);
+  let cells = "";
+  BUNNY_GRID.forEach((row, ri) => {
+    row.forEach((ch, ci) => {
+      const color = PX_COLORS[ch];
+      if (!color) return;
+      cells += `<div style="position:absolute; left:${Math.round(ci * CELL)}px; top:${Math.round(ri * CELL)}px; width:${Math.ceil(CELL) + 1}px; height:${Math.ceil(CELL) + 1}px; background:${color};"></div>`;
+    });
+  });
+  const waves = mood === "listening"
+    ? `<div class="wave-dot" style="left:${w + 4}px; top:${h * 0.28}px;"></div><div class="wave-dot" style="left:${w + 16}px; top:${h * 0.16}px; animation-delay:.2s;"></div>`
+    : "";
+  return `<div class="mascot ${mood === "listening" ? "mascot-fast" : ""}" style="position:relative; width:${w}px; height:${h}px;">${cells}${waves}</div>`;
+}
+
+/* ------------------------------------------------------------------ */
+/* 화면별 렌더링                                                        */
+/* ------------------------------------------------------------------ */
+function topBarHTML() {
+  return `
+  <div class="topbar">
+    <button class="icon-btn" data-action="go-home">←</button>
+    <div class="xp-track"><div class="xp-fill" style="width:${(state.xp % 300) / 3}%"></div></div>
+    <div class="streak">🔥 ${state.totalSessions}회</div>
+  </div>`;
+}
+
+function homeHTML() {
+  return `
+  <div class="screen">
+    <div class="home-top">
+      <div class="pill">⭐ Lv.${state.level}</div>
+      <div class="streak">🔥 총 ${state.totalSessions}회 연습</div>
+    </div>
+    <div class="xp-track w-full" style="max-width:none; margin: 0 0 20px;"><div class="xp-fill" style="width:${(state.xp % 300) / 3}%"></div></div>
+
+    <div class="mascot-stage">
+      <div class="mascot-glow"></div>
+      ${mascotSVG("idle", 170)}
+      <div class="speech-bubble">오늘도 멋진 발표 연습, 저와 함께 해볼까요?</div>
+    </div>
+
+    <div class="menu-list">
+      <button class="menu-tile" data-action="start-topic">
+        <div class="menu-icon" style="background:var(--spotlight)">🎤</div>
+        <div><div class="menu-title">연습 시작하기</div><div class="menu-sub">목소리를 녹음하고 피드백 받기</div></div>
+      </button>
+      <button class="menu-tile" data-action="navigate" data-target="tips">
+        <div class="menu-icon" style="background:var(--mint)">💡</div>
+        <div><div class="menu-title">꿀팁 모음</div><div class="menu-sub">발표 실력을 올리는 8가지 팁</div></div>
+      </button>
+      <button class="menu-tile" data-action="navigate" data-target="history">
+        <div class="menu-icon" style="background:var(--lavender)">📊</div>
+        <div><div class="menu-title">내 기록</div><div class="menu-sub">레벨과 연습 히스토리 보기</div></div>
+      </button>
+    </div>
+  </div>`;
+}
+
+function recordHTML() {
+  return `
+  ${topBarHTML()}
+  <div class="screen">
+    <div class="card topic-card">
+      <div class="topic-label">
+        <span>오늘의 연습 주제</span>
+        ${!state.isRecording ? `<button class="dice-btn" data-action="reroll-topic">🎲 다른 주제</button>` : ""}
+      </div>
+      <div class="topic-text">${state.topic}</div>
+    </div>
+
+    <div class="flex-col items-center gap-3" style="margin-bottom:16px;">
+      ${mascotSVG(state.isRecording ? "listening" : "idle", 110)}
+      <div class="timer ${state.isRecording ? "rec" : ""}">${formatTime(state.elapsedSec)}</div>
+    </div>
+
+    <div class="visualizer" id="visualizer">
+      ${state.levelBars.map((v) => `<div class="bar ${state.isRecording ? "active" : ""}" style="height:${Math.max(6, v)}%"></div>`).join("")}
+    </div>
+
+    ${!state.speechSupported ? `<div class="banner info">이 브라우저는 음성 인식을 지원하지 않아요. Chrome을 사용하면 대사 분석까지 받을 수 있어요! 지금도 목소리 크기 분석은 가능해요.</div>` : ""}
+    ${state.micError ? `<div class="banner error">${state.micError}</div>` : ""}
+
+    ${(state.finalText || state.interimText) ? `<div class="transcript-box" id="transcript">${state.finalText}<span class="transcript-interim">${state.interimText}</span></div>` : ""}
+
+    <div class="rec-controls">
+      <button class="rec-btn" data-action="start-recording" ${state.isRecording ? "disabled" : ""}>
+        <div class="rec-circle start">🎤</div>
+        <span class="rec-label">녹음 시작</span>
+      </button>
+      <button class="rec-btn" data-action="stop-recording" ${!state.isRecording ? "disabled" : ""}>
+        <div class="rec-circle stop ${state.isRecording ? "blinking" : ""}">■</div>
+        <span class="rec-label">정지</span>
+      </button>
+    </div>
+  </div>`;
+}
+
+function analyzingHTML() {
+  return `
+  ${topBarHTML()}
+  <div class="screen analyzing">
+    ${mascotSVG("thinking", 150)}
+    <div class="spinner"></div>
+    <div class="loading-msg">${LOADING_MSGS[state.loadingMsgIdx]}</div>
+  </div>`;
+}
+
+function feedbackHTML() {
+  const m = state.metrics, fb = state.feedback;
+  return `
+  ${topBarHTML()}
+  <div class="screen">
+    ${state.leveledUp ? `<div class="levelup-banner">🎉 레벨업! Lv.${state.level} 달성</div>` : ""}
+    <div class="flex-col items-center gap-3" style="margin-bottom:10px;">
+      ${mascotSVG("happy", 110)}
+      <div class="speech-bubble">${fb.greeting}</div>
+    </div>
+
+    <div class="score-row">
+      <div class="text-center"><div class="score-num" style="color:var(--spotlight)">${m.overall}</div><div class="score-label">종합 점수</div></div>
+      <div class="text-center"><div class="score-num" style="color:var(--mint)">+${state.xpGained}</div><div class="score-label">획득 XP</div></div>
+    </div>
+
+    <div class="stat-grid">
+      ${statCardHTML("말하기 속도", m.paceLabel, m.paceScore, "var(--spotlight)")}
+      ${statCardHTML("필러 단어", `${m.fillerCount}회`, m.fillerScore, "var(--curtain)")}
+      ${statCardHTML("목소리 안정감", `${m.volumeScore}점`, m.volumeScore, "var(--mint)")}
+      ${statCardHTML("쉼(멈춤)", `${m.pauseCount}회`, m.pauseScore, "var(--lavender)")}
+    </div>
+
+    <div class="section-title" style="color:var(--mint)">✅ 좋았던 점</div>
+    <div class="point-list">${fb.good_points.map((p) => `<div class="point-item" style="background:rgba(79,203,146,0.15)">${p}</div>`).join("")}</div>
+
+    <div class="section-title" style="color:var(--curtain)">⚠️ 고칠 점</div>
+    <div class="point-list">${fb.improve_points.map((p) => `<div class="point-item" style="background:rgba(255,138,91,0.15)">${p}</div>`).join("")}</div>
+
+    <div class="tip-box">
+      <div class="section-title" style="color:var(--spotlight)">💡 오늘의 꿀팁</div>
+      <div style="font-size:13.5px;">${fb.tip}</div>
+    </div>
+
+    <div class="cheer-text">${fb.cheer}</div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" data-action="record-again">다시 연습하기</button>
+      <button class="btn btn-secondary" data-action="go-home">홈으로</button>
+    </div>
+  </div>`;
+}
+function statCardHTML(label, valueLabel, pct, color) {
+  return `
+  <div class="stat-card">
+    <div class="stat-top"><span style="color:var(--text-dim)">${label}</span><span style="color:${color}">${valueLabel}</span></div>
+    <div class="stat-track"><div class="stat-fill" style="width:${Math.min(100, Math.max(4, pct))}%; background:${color}"></div></div>
+  </div>`;
+}
+
+function tipsHTML() {
+  return `
+  ${topBarHTML()}
+  <div class="screen">
+    <div class="tip-intro">${mascotSVG("happy", 60)}<span>연습 전에 훑어보면 좋아요!</span></div>
+    <div class="tip-grid">
+      ${TIPS.map((t) => `
+        <div class="tip-card">
+          <div class="tip-head"><div class="tip-icon">${t.icon}</div><span class="tip-tag">${t.tag}</span></div>
+          <div class="tip-title">${t.title}</div>
+          <div class="tip-desc">${t.desc}</div>
+        </div>`).join("")}
+    </div>
+  </div>`;
+}
+
+function sparklineSVG(history) {
+  const data = [...history].reverse();
+  const w = 280, h = 110, pad = 12;
+  const stepX = data.length > 1 ? (w - 2 * pad) / (data.length - 1) : 0;
+  const pt = (d, i) => {
+    const x = pad + i * stepX;
+    const y = h - pad - (d.score / 100) * (h - 2 * pad);
+    return [x, y];
+  };
+  const points = data.map((d, i) => pt(d, i).join(",")).join(" ");
+  const dots = data.map((d, i) => { const [x, y] = pt(d, i); return `<circle cx="${x}" cy="${y}" r="4" fill="#FF6FA5" stroke="#3B2A33" stroke-width="1.5"/>`; }).join("");
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" height="120"><polyline points="${points}" fill="none" stroke="#FF6FA5" stroke-width="3"/>${dots}</svg>`;
+}
+
+function historyHTML() {
+  const h = state.history;
+  return `
+  ${topBarHTML()}
+  <div class="screen">
+    <div class="card level-card">
+      ${mascotSVG("idle", 64)}
+      <div><div class="level-num">Lv.${state.level}</div><div class="level-sub">총 ${state.totalSessions}회 연습 · ${state.xp} XP</div></div>
+    </div>
+    ${h.length === 0 ? `
+      <div class="empty-state">
+        <div>아직 연습 기록이 없어요.<br/>첫 연습을 시작해볼까요?</div>
+        <button class="btn btn-primary" style="flex:none; padding:10px 18px;" data-action="start-topic">연습 시작하기</button>
+      </div>` : `
+      ${h.length >= 2 ? `<div class="card chart-card"><div class="chart-title">점수 추이</div>${sparklineSVG(h)}</div>` : ""}
+      ${h.map((s) => `
+        <div class="hist-row">
+          <div><div class="hist-date">${s.date}</div><div class="hist-meta">분당 ${s.cpm}자 · 필러 ${s.fillerCount}회 · ${formatTime(s.duration)}</div></div>
+          <div class="hist-score">${s.score}</div>
+        </div>`).join("")}
+    `}
+  </div>`;
+}
+
+/* ------------------------------------------------------------------ */
+/* 메인 렌더                                                            */
+/* ------------------------------------------------------------------ */
+function render() {
+  const app = document.getElementById("app");
+  const map = { home: homeHTML, record: recordHTML, analyzing: analyzingHTML, feedback: feedbackHTML, tips: tipsHTML, history: historyHTML };
+  app.innerHTML = (map[state.screen] || homeHTML)();
+}
+
+function navigate(target) {
+  state.screen = target;
+  render();
+}
+
+/* ------------------------------------------------------------------ */
+/* 녹음 로직                                                            */
+/* ------------------------------------------------------------------ */
+function rerollTopic() {
+  let t = state.topic;
+  while (t === state.topic) t = pick(TOPICS);
+  state.topic = t;
+}
+
+function cleanupRecording() {
+  isRecordingFlag = false;
+  if (tickInterval) clearInterval(tickInterval);
+  if (timerInterval) clearInterval(timerInterval);
+  if (recognition) { try { recognition.onend = null; recognition.stop(); } catch (e) {} }
+  if (mediaStream) { mediaStream.getTracks().forEach((t) => t.stop()); mediaStream = null; }
+  if (audioCtx) { try { audioCtx.close(); } catch (e) {} audioCtx = null; }
+}
+
+function sampleLevel() {
+  if (!analyser) return 0;
+  const data = new Uint8Array(analyser.fftSize);
+  analyser.getByteTimeDomainData(data);
+  let sum = 0;
+  for (let i = 0; i < data.length; i++) { const v = (data[i] - 128) / 128; sum += v * v; }
+  const rms = Math.sqrt(sum / data.length);
+  return Math.min(100, Math.round(rms * 320));
+}
+
+function updateVisualizerDOM() {
+  const el = document.getElementById("visualizer");
+  if (!el) return;
+  el.innerHTML = state.levelBars.map((v) => `<div class="bar active" style="height:${Math.max(6, v)}%"></div>`).join("");
+}
+
+async function startRecording() {
+  state.micError = "";
+  state.finalText = ""; state.interimText = "";
+  finalTranscript = ""; levelsArr = []; pauseCount = 0; silenceStart = null; pauseFlagged = false;
+  state.elapsedSec = 0; state.levelBars = Array(24).fill(4);
+
+  try {
+    mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const AC = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AC();
+    const source = audioCtx.createMediaStreamSource(mediaStream);
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 512;
+    source.connect(analyser);
+  } catch (e) {
+    state.micError = "마이크 권한을 허용해주세요! 브라우저 주소창 근처에서 마이크 접근을 허용할 수 있어요.";
+    render();
+    return;
+  }
+
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SR) {
+    recognition = new SR();
+    recognition.lang = "ko-KR";
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.onresult = (event) => {
+      let interim = "", finalChunk = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const res = event.results[i];
+        if (res.isFinal) finalChunk += res[0].transcript; else interim += res[0].transcript;
+      }
+      if (finalChunk) finalTranscript += finalChunk;
+      state.finalText = finalTranscript;
+      state.interimText = interim;
+      const box = document.getElementById("transcript");
+      if (box) box.innerHTML = `${state.finalText}<span class="transcript-interim">${state.interimText}</span>`;
+    };
+    recognition.onerror = () => {};
+    recognition.onend = () => { if (isRecordingFlag) { try { recognition.start(); } catch (e) {} } };
+    try { recognition.start(); } catch (e) {}
+  } else {
+    state.speechSupported = false;
+  }
+
+  isRecordingFlag = true;
+  state.isRecording = true;
+  render();
+
+  tickInterval = setInterval(() => {
+    const lvl = sampleLevel();
+    levelsArr.push(lvl);
+    state.levelBars = [...state.levelBars.slice(-23), lvl];
+    updateVisualizerDOM();
+    if (lvl < 8) {
+      if (!silenceStart) silenceStart = Date.now();
+      else if (Date.now() - silenceStart > 700 && !pauseFlagged) { pauseCount += 1; pauseFlagged = true; }
+    } else { silenceStart = null; pauseFlagged = false; }
+  }, 150);
+
+  timerInterval = setInterval(() => {
+    state.elapsedSec += 1;
+    const t = document.querySelector(".timer");
+    if (t) t.textContent = formatTime(state.elapsedSec);
+  }, 1000);
+}
+
+function stopRecording() {
+  const durationSec = state.elapsedSec;
+  cleanupRecording();
+  state.isRecording = false;
+
+  if (durationSec < 3) {
+    state.micError = "조금 더 길게 말해주세요! (최소 3초)";
+    render();
+    return;
+  }
+
+  const m = computeMetrics({ durationSec, transcript: finalTranscript, levels: levelsArr, pauseCount });
+  state.metrics = m;
+  navigate("analyzing");
+
+  loadingInterval = setInterval(() => {
+    state.loadingMsgIdx = (state.loadingMsgIdx + 1) % LOADING_MSGS.length;
+    const el = document.querySelector(".loading-msg");
+    if (el) el.textContent = LOADING_MSGS[state.loadingMsgIdx];
+  }, 1100);
+
+  setTimeout(() => {
+    clearInterval(loadingInterval);
+    const fb = generateFeedback(m);
+    state.feedback = fb;
+
+    const gained = Math.round(m.overall / 2) + 10;
+    const newXp = state.xp + gained;
+    const newLevel = Math.floor(newXp / 300) + 1;
+    state.leveledUp = newLevel > state.level;
+    state.xpGained = gained;
+    state.xp = newXp;
+    state.level = newLevel;
+    state.totalSessions += 1;
+    state.history = [{ date: new Date().toISOString().slice(0, 10), score: m.overall, cpm: m.cpm, fillerCount: m.fillerCount, duration: m.durationSec }, ...state.history].slice(0, 30);
+    saveStats();
+
+    navigate("feedback");
+  }, 1800);
+}
+
+/* ------------------------------------------------------------------ */
+/* 이벤트 위임                                                          */
+/* ------------------------------------------------------------------ */
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("[data-action]");
+  if (!t) return;
+  const action = t.dataset.action;
+  if (action === "navigate") navigate(t.dataset.target);
+  else if (action === "go-home") { if (state.isRecording) cleanupRecording(); state.isRecording = false; navigate("home"); }
+  else if (action === "start-topic") { rerollTopic(); navigate("record"); }
+  else if (action === "reroll-topic") { rerollTopic(); render(); }
+  else if (action === "start-recording") startRecording();
+  else if (action === "stop-recording") stopRecording();
+  else if (action === "record-again") { state.feedback = null; state.metrics = null; state.leveledUp = false; rerollTopic(); navigate("record"); }
+});
+
+/* ------------------------------------------------------------------ */
+/* 초기화                                                               */
+/* ------------------------------------------------------------------ */
+(function init() {
+  loadStats();
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) state.speechSupported = false;
+  state.topic = pick(TOPICS);
+  render();
+})();
+
+  </script>
+</body>
+</html>
